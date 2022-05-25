@@ -64,7 +64,7 @@ async function run() {
             const client = req.query.client;
             // const decodedEmail = req.decoded.email;
 
-            const query = {};
+            const query = { client: client };
             const purchase = await purchaseCollection.find(query).toArray();
             res.send(purchase);
 

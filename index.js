@@ -39,6 +39,20 @@ async function run() {
         const reviewCollection = client.db('car_part').collection('review');
         const userCollection = client.db('car_part').collection('users');
         const profileCollection = client.db('car_part').collection('profile');
+        const paymentCollection = client.db('car_part').collection('payments');
+
+
+        app.post('/create-payment-intent', verifyJWT, async (req, res) => {
+            const service = req.body;
+            const price = service.price;
+            const amount = price * 100;
+            const paymentIntent = await stripe.paymentIntents.create({
+                amount: amount,
+                currency: 'usd',
+                payment_method_types: ['card']
+            });
+            res.send({ clientSecret: paymentIntent.client_secret })
+        });
 
         //getting all part info
         app.get('/part', async (req, res) => {

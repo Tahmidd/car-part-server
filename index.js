@@ -29,9 +29,14 @@ async function run() {
         });
 
         app.post('/purchase', async (req, res) => {
-            const purchase = req.body;
-            const result = await purchaseCollection.insertOne(purchase);
-            res.send(result);
+            const purchases = req.body;
+            const query = { purchase: purchases.purchase, client: purchases.client }
+            const exists = await purchaseCollection.findOne(query);
+            if (exists) {
+                return res.send({ success: false, purchases: exists })
+            }
+            const result = await purchaseCollection.insertOne(purchases);
+            return res.send({ success: true, result });
         });
 
     }

@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const { MongoClient, ServerApiVersion, MongoRuntimeError, ObjectId } = require('mongodb');
 
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+
 const app = express()
 const port = process.env.PORT || 5000;
 
@@ -118,7 +120,7 @@ async function run() {
 
 
 
-        app.get('/purchase/:id', async (req, res) => {
+        app.get('/purchase/:id', verifyJWT, async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const product = await purchaseCollection.findOne(query);

@@ -50,6 +50,13 @@ async function run() {
             const result = await partCollection.insertOne(part);
             res.send(result);
         });
+        //deleting part
+        app.delete('/part/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await partCollection.deleteOne(query);
+            res.send(result);
+        });
 
         app.put('/user/:email', async (req, res) => {
             const email = req.params.email;

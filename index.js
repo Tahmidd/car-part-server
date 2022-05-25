@@ -45,6 +45,11 @@ async function run() {
             const parts = await cursor.toArray();
             res.send(parts);
         });
+        app.post('/part', async (req, res) => {
+            const part = req.body;
+            const result = await partCollection.insertOne(part);
+            res.send(result);
+        });
 
         app.put('/user/:email', async (req, res) => {
             const email = req.params.email;

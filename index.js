@@ -28,6 +28,7 @@ async function run() {
             res.send(parts);
         });
 
+        //posting purchase
         app.post('/purchase', async (req, res) => {
             const purchases = req.body;
             const query = { purchase: purchases.purchase, client: purchases.client }
@@ -37,6 +38,13 @@ async function run() {
             }
             const result = await purchaseCollection.insertOne(purchases);
             return res.send({ success: true, result });
+        });
+
+        app.get('/purchase', async (req, res) => {
+            const query = {};
+            const cursor = purchaseCollection.find(query);
+            const purchase = await cursor.toArray();
+            res.send(purchase);
         });
 
     }

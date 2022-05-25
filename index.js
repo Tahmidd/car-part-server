@@ -35,6 +35,8 @@ async function run() {
         const partCollection = client.db('car_part').collection('parts');
         const purchaseCollection = client.db('car_part').collection('purchase');
         const reviewCollection = client.db('car_part').collection('review');
+        const userCollection = client.db('car_part').collection('users');
+        const profileCollection = client.db('car_part').collection('profile');
 
         //getting all part info
         app.get('/part', async (req, res) => {
@@ -44,6 +46,30 @@ async function run() {
             res.send(parts);
         });
 
+        app.put('/user/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = req.body;
+            const filter = { email: email };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: user,
+            };
+            const result = await userCollection.updateOne(filter, updateDoc, options);
+            const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
+            res.send({ result, token });
+        });
+
+
+        app.get('/purchase', verifyJWT, async (req, res) => {
+            const client = req.query.client;
+            // const decodedEmail = req.decoded.email;
+
+            const query = {};
+            const purchase = await purchaseCollection.find(query).toArray();
+            res.send(purchase);
+
+
+        });
         //posting purchase
         app.post('/purchase', async (req, res) => {
             const purchases = req.body;
@@ -56,12 +82,7 @@ async function run() {
             return res.send({ success: true, result });
         });
 
-        app.get('/purchase', async (req, res) => {
-            const query = {};
-            const cursor = purchaseCollection.find(query);
-            const purchase = await cursor.toArray();
-            res.send(purchase);
-        });
+
 
         app.get('/purchase/:id', async (req, res) => {
             const id = req.params.id;
@@ -89,6 +110,13 @@ async function run() {
             const cursor = reviewCollection.find(query);
             const review = await cursor.toArray();
             res.send(review);
+        });
+
+        //profile part
+        app.post('/profile', async (req, res) => {
+            const profile = req.body;
+            const result = await profileCollection.insertOne(profile);
+            res.send(result);
         });
 
 

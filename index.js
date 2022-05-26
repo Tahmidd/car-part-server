@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
-const { MongoClient, ServerApiVersion, MongoRuntimeError, ObjectId } = require('mongodb');
+const { MongoClient, ServerApiVersion, MongoRuntimeError, ObjectId, ObjectID } = require('mongodb');
 
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
@@ -52,6 +52,22 @@ async function run() {
                 payment_method_types: ['card']
             });
             res.send({ clientSecret: paymentIntent.client_secret })
+        });
+
+        app.patch('/purchase/:id', verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const payment = req.body;
+            const filter = { _id: ObjectId(id) };
+            const updatedDoc = {
+                $set: {
+                    paid: true,
+                    transactionId: payment.transactionId
+                }
+            }
+
+            const result = await paymentCollection.insertOne(payment);
+            const updatedPurchase = await purchaseCollection.updateOne(filter, updatedDoc);
+            res.send(updatedPurchase);
         });
 
         //getting all part info
